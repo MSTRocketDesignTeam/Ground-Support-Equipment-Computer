@@ -4,7 +4,7 @@
 
 <p align="center"><sup><em>*This repo is intended for educational purposes only*</em></sup></p>
 
-# SRAD Ground Support Equipment (GSE) Control Software
+# SRAD Ground Support Equipment (GSE) Control System
 The repository containing the in-house developed control software and system documentation for the GSE of the liquid bipropellant rocket. 
 
 ## About
