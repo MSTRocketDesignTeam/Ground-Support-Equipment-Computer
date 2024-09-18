@@ -4,7 +4,7 @@
 
 <p align="center"><sup><em>*This repo is intended for educational purposes only*</em></sup></p>
 
-# SRAD Ground Support Equipment (GSE) Control System
+# SRAD Ground Support Equipment (GSE) System
 The repository containing the in-house developed control software and system documentation for the GSE of the liquid bipropellant rocket. 
 
 ## About
@@ -23,7 +23,7 @@ It aims to provide basic GSE control functionality, such as controlling the nitr
 This repo contains three main sections, hardware, integrationDocumentation, and firmware.
 
 ### Hardware:
-The hardware directory will contain all of the files related to the design and assembly of the PCBs. This includes KiCad projects as well as BOMs. 
+The hardware directory will contain all of the files related to the design and assembly of the PCBs and interface hardware. This includes KiCad projects as well as BOMs. 
 
 ### integrationDocumentation:
 The integrationDocumentation directory will contain all of the integration documentation to integrate the above hardware with the Raspberry Pi based GSEC
