@@ -1,0 +1,5 @@
+# Ignore all GSEC Log files in commits
+GSECLOG*.txt
+
+# Ignore cached python files
+**/__pycache__/

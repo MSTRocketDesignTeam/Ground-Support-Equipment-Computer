@@ -1,58 +1,10 @@
 import tkinter as tk
-import tkinter.font as font
 import tkinter.ttk as ttk
 from datetime import datetime, timezone
 import sys
+from theming import Custom_Button, Custom_Panel, get_font
 
-
-class Custom_Button():
-    def __init__(self, parent, text_, action):
-        self.normal_color = 'white'
-        self.text_color = 'black'
-        self.hover_color = '#b0b0b0'
-        self.active_color = '#94ff21'
-        self._helv20 = font.Font(family='Helvetica', size=20)
-
-        button = tk.Label(parent, text=text_, fg=self.text_color,
-                          bg=self.normal_color, font=self._helv20, padx=15, pady=15, relief='raised')
-        button.bind(
-            '<Enter>', self.enter_action)
-        button.bind(
-            '<Leave>', self.leave_action)
-        button.bind(
-            '<Double-Button>', self.double_action)
-
-        button.pack(pady=5)
-
-        self.button = button
-        self.enter_flag = False
-        self.action = action
-
-    def enter_action(self, event):
-        self.enter_flag = True
-        self.button.config(bg=self.hover_color)
-
-    def leave_action(self, event):
-        self.enter_flag = False
-        self.button.config(bg=self.normal_color)
-
-    def double_action(self, event):
-        if self.enter_flag:
-            self.action()
-            self.button.config(bg=self.active_color)
-
-        self.enter_flag = False
-
-    def set_text(self, text_):
-        self.button.config(text=text_)
-
-
-class Custom_Panel():
-    def __init__(self, root, row_, column_, text_):
-        self.panel = tk.LabelFrame(root, text=text_, bg='black',
-                                   fg='white', padx=15, pady=15, relief='groove')
-        self.panel.grid(row=row_, column=column_,
-                        sticky='nsew', padx=5, pady=5)
+from controller import Controller
 
 
 class GUI_Window():
@@ -69,11 +21,8 @@ class GUI_Window():
 
         self.root = root
 
-        self._helv16 = font.Font(family='Helvetica', size=16)
-        self._helv20 = font.Font(family='Helvetica', size=20)
-        self._helv36 = font.Font(family='Helvetica', size=36)
-        self._cour12 = font.Font(family='Courier', size=12)
-        self._cour16 = font.Font(family='Courier', size=16)
+        self.start_timestamp = datetime.now(timezone.utc)
+        self.controller = Controller(self.start_timestamp)
 
         # Setup basic GUI elements
         self.setup_console(0)
@@ -88,6 +37,8 @@ class GUI_Window():
         root.configure(bg='black')
 
         self.exit_attempt = False
+
+        self.mode = None
 
         self.root.mainloop()
 
@@ -171,8 +122,8 @@ class GUI_Window():
 
         mp = Custom_Panel(self.root, row_, column_, 'Program Termination')
 
-        Custom_Button(mp.panel, 'Emergency Stop', self.run_estop)
-        Custom_Button(mp.panel, 'Exit Program', self.run_exit)
+        Custom_Button(mp.panel, 'Emergency Stop', self.run('estop'))
+        Custom_Button(mp.panel, 'Exit Program', self.prg_exit)
 
         self.set_control_mode = None
         self.set_interlocks = None
@@ -187,7 +138,7 @@ class GUI_Window():
         '''
         ap = Custom_Panel(self.root, row_, column_, 'Automated Controls')
 
-        Custom_Button(ap.panel, 'Start launch sequence', self.run_launch)
+        Custom_Button(ap.panel, 'Start launch sequence', self.run('launch'))
 
     def setup_manual_control_section(self, row_, column_):
         '''
@@ -196,9 +147,9 @@ class GUI_Window():
         '''
         mp = Custom_Panel(self.root, row_, column_, 'Manual Controls')
 
-        Custom_Button(mp.panel, 'Igniter', self.run_launch)
-        Custom_Button(mp.panel, 'Dump Oxidizer', self.run_launch)
-        Custom_Button(mp.panel, 'Open Mains', self.run_launch)
+        Custom_Button(mp.panel, 'Igniter', self.run('ignite'))
+        Custom_Button(mp.panel, 'Dump Oxidizer', self.run('dump'))
+        Custom_Button(mp.panel, 'Open Mains', self.run('open_mains'))
 
     def setup_sensor_readouts(self, row_, column_):
         '''Displays all sensor readouts in table format.'''
@@ -206,19 +157,19 @@ class GUI_Window():
         sp = Custom_Panel(self.root, row_, column_, 'Sensors')
 
         fuel_tank_PT = tk.Label(
-            sp.panel, text='Fuel tank PT         waiting...', font=self._cour12)
+            sp.panel, text='Fuel tank PT         waiting...', font=get_font('c12'))
         ox_tank_PT = tk.Label(
-            sp.panel, text='Ox tank PT           waiting...', font=self._cour12)
+            sp.panel, text='Ox tank PT           waiting...', font=get_font('c12'))
         fuel_venturi_flow_PTs = tk.Label(
-            sp.panel, text='Fuel Venturi PTs     waiting : waiting ', font=self._cour12)
+            sp.panel, text='Fuel Venturi PTs     waiting : waiting ', font=get_font('c12'))
         ox_venturi_flow_PTs = tk.Label(
-            sp.panel, text='Ox Venturi PTs       waiting : waiting ', font=self._cour12)
+            sp.panel, text='Ox Venturi PTs       waiting : waiting ', font=get_font('c12'))
         chamber_PT = tk.Label(
-            sp.panel, text='Chamber PT           waiting... ', font=self._cour12)
+            sp.panel, text='Chamber PT           waiting... ', font=get_font('c12'))
         ox_TC = tk.Label(
-            sp.panel, text='Ox TC                waiting... ', font=self._cour12)
+            sp.panel, text='Ox TC                waiting... ', font=get_font('c12'))
         chamber_TC = tk.Label(
-            sp.panel, text='Chamber TC           waiting... ', font=self._cour12)
+            sp.panel, text='Chamber TC           waiting... ', font=get_font('c12'))
 
         sensor_list = [fuel_tank_PT, ox_tank_PT, fuel_venturi_flow_PTs,
                        ox_venturi_flow_PTs, chamber_PT, ox_TC, chamber_TC]
@@ -237,10 +188,8 @@ class GUI_Window():
         s = ttk.Style()
         s.configure('TProgressbar', thickness=20)
 
-        fill_open_button = Custom_Button(
-            op.panel, 'Open Fill Valve', self.run_open_fill)
-        fill_close_button = Custom_Button(
-            op.panel, 'Close Fill Valve', self.run_close_fill)
+        Custom_Button(op.panel, 'Open Fill Valve', self.run('open_fill'))
+        Custom_Button(op.panel, 'Close Fill Valve', self.run('close_fill'))
         fill_time = tk.Label(
             op.panel, text='Time to fill:\t\t-- Not Started --')
         progress_label = tk.Label(op.panel, text='Fill progress:')
@@ -263,7 +212,7 @@ class GUI_Window():
         cp.panel.grid(row=0, column=column_, rowspan=2)
 
         console = tk.Text(cp.panel, width=40, height=20,
-                          wrap='word', font=self._cour16)
+                          wrap='word', font=get_font('c16'))
 
         console.pack()
         console.configure(state='disabled')
@@ -319,33 +268,6 @@ class GUI_Window():
             self.set_caution('GUI', 2)
             return 1
 
-    def run_estop(self):
-        '''
-        Runs the emergency stop procedure to safe the entire
-        system as quickly as possible.
-        '''
-        self.run_console_log('E-Stop Button Pressed', 2)
-        # self.console_file.close()
-
-    def run_exit(self):
-        '''
-        Immediately terminates program operation without running safing procedures
-        '''
-
-        try:
-            self.run_console_log('Program exited', 1)
-            self.console_file.close()
-            self.exit_attempt = True
-        except:
-            print('error')
-            self.run_console_log(
-                'An error occured while trying to exit the program. This probably occured because of an error in saving the log file. To proceed anyway, please click this button again.', 2)
-
-        if self.exit_attempt:
-            sys.exit(0 if self.exit_attempt == False else 1)
-        else:
-            self.exit_attempt = True
-
     def run_console_log(self, text, state):
         '''
         Logs a message to the console and to the corresponding
@@ -359,22 +281,20 @@ class GUI_Window():
             3 >>> No status
         '''
 
-        date_time = datetime.now(timezone.utc)
-
         if text == 'STARTUP':
             fmt = '%m-%d-%Y, %H:%M:%S UTC : CONSOLE STARTUP\n\n'
             text = 'Missouri S&T RDT Ground Control\n\n' \
                 '>> Standard Operation\nxx Caution\n!! Warning\n\n' \
                 'ALL BUTTONS MUST BE DOUBLE CLICKED\n'
             state = 3
-            self.console_file = open(date_time.strftime(
+            self.console_file = open(self.start_timestamp.strftime(
                 'GSECLOG_%m_%d_%Y_%H_%M_%S.txt'), 'a+')
         else:
             fmt = '%H:%M:%S : '
 
         state_indicators = ['>> ', 'xx ', '!! ', '']
 
-        str_date_time = date_time.strftime(fmt)
+        str_date_time = datetime.now(timezone.utc).strftime(fmt)
 
         full_text = state_indicators[state] + str_date_time + text + '\n'
         self.console.configure(state='normal')
@@ -394,29 +314,35 @@ class GUI_Window():
 
         self.console.yview_pickplace('end')
 
-    def run_open_fill(self):
+    def prg_exit(self):
         '''
-        Attempts to open the fill valve and handles
-        the corresponding error code from micropython.
+        Immediately terminates program operation without running safing procedures
         '''
-        error_code = 0
-        self.run_console_log('Fill valve opened', error_code)
 
-    def run_close_fill(self):
+        try:
+            self.run_console_log('Program exited', 1)
+            self.console_file.close()
+            self.exit_attempt = True
+        except:
+            print('error')
+            self.run_console_log(
+                'An error occured while trying to exit the program. This probably occured because of an error in saving the log file. To proceed anyway, please click this button again.', 2)
+
+        if self.exit_attempt:
+            sys.exit(0 if self.exit_attempt == False else 1)
+        else:
+            self.exit_attempt = True
+
+    def run(self, function_name):
         '''
-        Attempts to close the oxidizer valves and handles the
-        corresponding error code from micropython.
+        Handles exectution of commands to the controller.
         '''
-        error_code = 0
-        self.run_console_log('Fill valve closed', error_code)
 
-    def get_fill_state(self):
-        '''Returns the fill state of the oxidizer tank as an ordered tuple.'''
-        return (.3, 60)
+        func = getattr(self.controller, function_name)
 
-    def run_launch(self):
-        pass
+        return lambda: self.run_console_log(*func())
 
+    def set_mode(self, mode):
+        assert (mode in ['launch', 'test'])
 
-if __name__ == '__main__':
-    GUI = GUI_Window()
+        self.mode = mode
