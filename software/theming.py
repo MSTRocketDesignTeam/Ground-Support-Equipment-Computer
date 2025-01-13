@@ -3,11 +3,12 @@ import tkinter.font as font
 
 
 class Custom_Button():
-    def __init__(self, parent, text_, action):
+    def __init__(self, parent, text_, action, **kwargs):
         self.normal_color = 'white'
         self.text_color = 'black'
         self.hover_color = '#b0b0b0'
         self.active_color = '#94ff21'
+        self.toggle_color = '#f4ea80'
         self._helv20 = font.Font(family='Helvetica', size=20)
 
         button = tk.Label(parent, text=text_, fg=self.text_color,
@@ -19,29 +20,44 @@ class Custom_Button():
         button.bind(
             '<Double-Button>', self.double_action)
 
-        button.pack(pady=5)
+        toggle = kwargs.get('toggle', False)
+        if toggle:
+            button.pack(side=tk.LEFT)
+        else:
+            button.pack(pady=5)
 
         self.button = button
         self.enter_flag = False
         self.action = action
 
+        self.toggled = False
+
     def enter_action(self, event):
         self.enter_flag = True
-        self.button.config(bg=self.hover_color)
+        if not self.toggled:
+            self.button.config(bg=self.hover_color)
 
     def leave_action(self, event):
-        self.enter_flag = False
-        self.button.config(bg=self.normal_color)
+        if not self.toggled:
+            self.enter_flag = False
+            self.button.config(bg=self.normal_color)
 
     def double_action(self, event):
         if self.enter_flag:
-            self.action()
             self.button.config(bg=self.active_color)
+            self.action()
 
         self.enter_flag = False
 
     def set_text(self, text_):
         self.button.config(text=text_)
+
+    def set_toggle(self, state):
+        self.toggled = state
+        if state:
+            self.button.config(bg=self.toggle_color)
+        else:
+            self.button.config(bg=self.normal_color)
 
 
 class Custom_Panel():
@@ -50,6 +66,38 @@ class Custom_Panel():
                                    fg='white', padx=15, pady=15, relief='groove')
         self.panel.grid(row=row_, column=column_,
                         sticky='nsew', padx=5, pady=5)
+
+
+class Custom_Toggle():
+    def __init__(self, parent, label_text, handle_toggle,  **kwargs):
+        frame = tk.LabelFrame(parent, relief='solid',
+                              text=label_text, bg='black', labelanchor='n', font=get_font('h14'))
+        frame.pack()
+
+        self.on = Custom_Button(
+            frame, 'On', self.toggle_on, toggle=True)
+        self.off = Custom_Button(
+            frame, 'Off', self.toggle_off, toggle=True)
+
+        # Default toggle:
+        default_state = kwargs.get('default', 'off')
+
+        self.on.set_toggle(default_state == 'on')
+        self.off.set_toggle(default_state == 'off')
+
+        self.handle_toggle = handle_toggle
+
+    def toggle_on(self):
+        self.on.set_toggle(True)
+        self.off.set_toggle(False)
+
+        self.handle_toggle(True)
+
+    def toggle_off(self):
+        self.on.set_toggle(False)
+        self.off.set_toggle(True)
+
+        self.handle_toggle(False)
 
 
 def get_font(font_string):

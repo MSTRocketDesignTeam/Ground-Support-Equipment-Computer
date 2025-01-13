@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from datetime import datetime, timezone
 import sys
-from theming import Custom_Button, Custom_Panel, get_font
+from theming import Custom_Button, Custom_Panel, Custom_Toggle, get_font
 
 from controller import Controller
 
@@ -47,13 +47,8 @@ class GUI_Window():
 
         mp = Custom_Panel(self.root, row_, column_, 'Modes')
 
-        self.control_mode_button = Custom_Button(
-            mp.panel, 'Control mode: manual', self.toggle_control_mode)
-        self.interlocks_button = Custom_Button(
-            mp.panel, 'Interlocks: off', self.toggle_interlocks)
-
-        self.auto_control_mode = 0
-        self.interlocks = 0
+        Custom_Toggle(mp.panel, 'Interlocks', self.run('set_interlocks'))
+        Custom_Toggle(mp.panel, 'Auto Mode', self.run('set_auto'))
 
     def setup_caution_panel(self, row_, column_):
         '''
@@ -221,53 +216,6 @@ class GUI_Window():
 
         self.run_console_log('STARTUP', 0)
 
-    def toggle_control_mode(self):
-        '''
-        Toggle the control mode from manual to automatic and vice versa.
-        '''
-        try:
-            if self.auto_control_mode:
-                self.auto_control_mode = 0
-            else:
-                self.auto_control_mode = 1
-
-            self.control_mode_button.set_text(
-                f'Control mode: {['manual', 'auto'][self.auto_control_mode]}')
-
-            self.run_console_log(
-                f'Control mode toggled to {
-                    ['off', 'on'][self.auto_control_mode]}', 0
-            )
-            return 0
-        except:
-            self.run_console_log(
-                'WARNING - An unknown issue occurred when attempting to toggle control modes.', 2)
-            self.set_caution('GUI', 2)
-            return 1
-
-    def toggle_interlocks(self):
-        '''
-        Toggle the interlock mode from manual to automatic and vice versa.
-        '''
-        try:
-            if self.interlocks:
-                self.interlocks = 0
-            else:
-                self.interlocks = 1
-
-            self.interlocks_button.set_text(
-                f'Interlocks: {['off', 'on'][self.interlocks]}')
-
-            self.run_console_log(
-                f'Interlocks toggled to {['off', 'on'][self.interlocks]}', 0
-            )
-            return 0
-        except:
-            self.run_console_log(
-                'WARNING - An unknown issue occurred when attempting to toggle interlock modes.', 2)
-            self.set_caution('GUI', 2)
-            return 1
-
     def run_console_log(self, text, state):
         '''
         Logs a message to the console and to the corresponding
@@ -340,7 +288,7 @@ class GUI_Window():
 
         func = getattr(self.controller, function_name)
 
-        return lambda: self.run_console_log(*func())
+        return lambda *args: self.run_console_log(*func(*args))
 
     def set_mode(self, mode):
         assert (mode in ['launch', 'test'])

@@ -8,21 +8,24 @@ class Controller():
     def __init__(self, timestamp):
 
         # Setup controller state map:
-        #  0 >>> Nominal / off
-        #  1 >>> Caution / on
+        #  0 >>> Nominal
+        #  1 >>> Caution
         #  2 >>> Warning
         # -1 >>> Unknown
+        #
+        # False >>> Off
+        # True  >>> On
 
         self.state = {
             'fill_valve': -1,
             'ox_valve': -1,
             'fuel_valve': -1,
 
-            'auto_mode': 0,
-            'interlocks': 0,
+            'auto_mode': False,
+            'interlocks': False,
 
-            'arm': 0,
-            'igniter_lit': 0,
+            'arm': False,
+            'igniter_lit': False,
 
             'LEC_link_status': -1,
             'LEC_status': -1,
@@ -36,10 +39,10 @@ class Controller():
             'ox_tc': -1,
             'chamber_tc': -1,
 
-            'error_override_flag': 0,
-            'emergency_stop_flag': 0,
+            'error_override_flag': False,
+            'emergency_stop_flag': False,
 
-            'tank_full': 0,
+            'tank_fill': 0,
         }
 
         self.record = {}
@@ -49,6 +52,8 @@ class Controller():
         Runs the emergency stop procedure to safe the entire
         system as quickly as possible.
         '''
+
+        self.state['estop'] = 1
 
         # Insert calls to micropython
 
@@ -102,6 +107,22 @@ class Controller():
 
     def open_mains(self):
         message = 'Mains open button pressed'
+        status = 2
+
+        return (message, status)
+
+    def set_interlocks(self, state):
+        self.state['interlocks'] = state
+
+        message = 'Interlocks mode set to ' + ('off', 'on')[state]
+        status = 2
+
+        return (message, status)
+
+    def set_auto(self, state):
+        self.state['auto_mode'] = state
+
+        message = 'Auto mode set to ' + ('off', 'on')[state]
         status = 2
 
         return (message, status)
