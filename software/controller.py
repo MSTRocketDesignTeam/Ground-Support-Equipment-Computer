@@ -1,3 +1,4 @@
+import random
 
 class Controller():
     '''
@@ -85,6 +86,24 @@ class Controller():
         status = 2
 
         return (message, status)
+
+    def readSensors(self, numSensors):
+        sensorReadings = []
+        for _ in range(numSensors):
+            sensorReadings.append(random.randint(100, 999))
+        return sensorReadings
+    
+    def update_sensor_data(self, myRoot, myLabels):
+        sensorReadings = self.readSensors(len(myLabels))
+        myLabels[0].config(text=f"Fuel Tank PT: {sensorReadings[0]} psi")
+        myLabels[1].config(text=f"Ox tank PT: {sensorReadings[1]} psi")
+        myLabels[2].config(text=f"Fuel Venturi PT: {sensorReadings[2]} psi")
+        myLabels[3].config(text=f"Ox Venturi PT: {sensorReadings[3]} psi")
+        myLabels[4].config(text=f"Chamber PT: {sensorReadings[4]} psi")
+        myLabels[5].config(text=f"Ox TC {sensorReadings[5]} F")
+        myLabels[6].config(text=f"Chamber TC {sensorReadings[6]} F")
+        
+        myRoot.after(100, lambda: self.update_sensor_data(myRoot, myLabels))
 
     def get_fill_state(self):
         '''Returns the fill state of the oxidizer tank as an ordered tuple.'''

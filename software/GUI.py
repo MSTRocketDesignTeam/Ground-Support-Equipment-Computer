@@ -27,7 +27,7 @@ class GUI_Window():
         # Setup basic GUI elements
         self.setup_console(0)
         self.setup_caution_panel(0, 1)
-        self.setup_sensor_readouts(0, 2)
+        sensorList = self.setup_sensor_readouts(0, 2)
         self.setup_modes_panel(1, 1)
         self.setup_kill_panel(1, 2)
         self.setup_ox_monitor(2, 0)
@@ -39,11 +39,13 @@ class GUI_Window():
         self.exit_attempt = False
 
         self.mode = None
+        self.controller.update_sensor_data(self.root, sensorList)
 
         self.root.mainloop()
 
+
     def setup_modes_panel(self, row_, column_):
-        '''Sets up a pannel with buttons for toggling auto launch interlock modes.'''
+        '''Sets up a panel with buttons for toggling auto launch interlock modes.'''
 
         mp = Custom_Panel(self.root, row_, column_, 'Modes')
 
@@ -146,6 +148,7 @@ class GUI_Window():
         Custom_Button(mp.panel, 'Dump Oxidizer', self.run('dump'))
         Custom_Button(mp.panel, 'Open Mains', self.run('open_mains'))
 
+
     def setup_sensor_readouts(self, row_, column_):
         '''Displays all sensor readouts in table format.'''
 
@@ -156,9 +159,9 @@ class GUI_Window():
         ox_tank_PT = tk.Label(
             sp.panel, text='Ox tank PT           waiting...', font=get_font('c12'))
         fuel_venturi_flow_PTs = tk.Label(
-            sp.panel, text='Fuel Venturi PTs     waiting : waiting ', font=get_font('c12'))
+            sp.panel, text='Fuel Venturi PT     waiting : waiting ', font=get_font('c12'))
         ox_venturi_flow_PTs = tk.Label(
-            sp.panel, text='Ox Venturi PTs       waiting : waiting ', font=get_font('c12'))
+            sp.panel, text='Ox Venturi PT       waiting : waiting ', font=get_font('c12'))
         chamber_PT = tk.Label(
             sp.panel, text='Chamber PT           waiting... ', font=get_font('c12'))
         ox_TC = tk.Label(
@@ -171,6 +174,9 @@ class GUI_Window():
 
         for sensor in sensor_list:
             sensor.pack(anchor='w', pady=2)
+        return sensor_list
+        
+    
 
     def setup_ox_monitor(self, row_, column_):
         '''
