@@ -3,6 +3,7 @@
 ## Purpose
 
 This directory includes the code required to run the GSEC GUI and trigger functions that will be physically executed on the rocket.
+This specific branch (gui_dev) is where furthered GUI development will take place, including modernization, object arrangement, etc.
 
 ## Structure
 
