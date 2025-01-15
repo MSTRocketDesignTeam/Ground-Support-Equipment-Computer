@@ -3,6 +3,7 @@
 ## Purpose
 
 This directory includes the code required to run the GSEC GUI and trigger functions that will be physically executed on the rocket.
+This specific branch (main) is where functional hardware based software development, such as MicroPython method implementation, will take place.
 
 ## Structure
 
