@@ -1,5 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+import serial
+import threading
 from datetime import datetime, timezone
 import sys
 from theming import Custom_Button, Custom_Panel, Custom_Toggle, get_font
@@ -33,6 +35,17 @@ class GUI_Window():
         self.setup_ox_monitor(2, 0)
         self.setup_auto_control_section(2, 1)
         self.setup_manual_control_section(2, 2)
+        
+        #Start serial line and specify the Pi Pico's USB/Serial address
+        self.ser = serial.Serial('/dev/ttyACM0', 115200)
+        
+        # Start reading from the serial port in a separate thread
+        self.serialThread = threading.Thread(target=self.read_serial_data)
+        self.serialThread.daemon = True  # Make sure this thread exits when the app closes
+        self.serialThread.start()
+        
+        self.sensorData = []
+        self.root.after(100, self.update_sensor_data)
 
         root.configure(bg='black')
 
@@ -49,6 +62,17 @@ class GUI_Window():
 
         Custom_Toggle(mp.panel, 'Interlocks', self.run('set_interlocks'))
         Custom_Toggle(mp.panel, 'Auto Mode', self.run('set_auto'))
+        
+        
+    def read_serial_data(self):
+        while True:
+            if self.ser.in_waiting > 0:
+                # Read the data sent from the Pico
+                data = self.ser.readline().decode('utf-8').strip()
+                # Split the received string into individual integers
+                self.sensorData = list(map(int, data.split()))
+                
+    
 
     def setup_caution_panel(self, row_, column_):
         '''
@@ -144,33 +168,47 @@ class GUI_Window():
 
         Custom_Button(mp.panel, 'Igniter', self.run('ignite'))
         Custom_Button(mp.panel, 'Dump Oxidizer', self.run('dump'))
-        Custom_Button(mp.panel, 'Open Mains', self.run('open_mains'))
+        Custom_Button(mp.panel, 'Open Mains', self.run('open_mains'))        
+
 
     def setup_sensor_readouts(self, row_, column_):
         '''Displays all sensor readouts in table format.'''
 
         sp = Custom_Panel(self.root, row_, column_, 'Sensors')
 
-        fuel_tank_PT = tk.Label(
+        self.fuel_tank_PT = tk.Label(
             sp.panel, text='Fuel tank PT         waiting...', font=get_font('c12'))
-        ox_tank_PT = tk.Label(
+        self.ox_tank_PT = tk.Label(
             sp.panel, text='Ox tank PT           waiting...', font=get_font('c12'))
-        fuel_venturi_flow_PTs = tk.Label(
-            sp.panel, text='Fuel Venturi PTs     waiting : waiting ', font=get_font('c12'))
-        ox_venturi_flow_PTs = tk.Label(
-            sp.panel, text='Ox Venturi PTs       waiting : waiting ', font=get_font('c12'))
-        chamber_PT = tk.Label(
+        self.fuel_venturi_flow_PT = tk.Label(
+            sp.panel, text='Fuel Venturi PT     waiting...', font=get_font('c12'))
+        self.ox_venturi_flow_PT = tk.Label(
+            sp.panel, text='Ox Venturi PT       waiting...', font=get_font('c12'))
+        self.chamber_PT = tk.Label(
             sp.panel, text='Chamber PT           waiting... ', font=get_font('c12'))
-        ox_TC = tk.Label(
+        self.ox_TC = tk.Label(
             sp.panel, text='Ox TC                waiting... ', font=get_font('c12'))
-        chamber_TC = tk.Label(
+        self.chamber_TC = tk.Label(
             sp.panel, text='Chamber TC           waiting... ', font=get_font('c12'))
 
-        sensor_list = [fuel_tank_PT, ox_tank_PT, fuel_venturi_flow_PTs,
-                       ox_venturi_flow_PTs, chamber_PT, ox_TC, chamber_TC]
+        sensor_list = [self.fuel_tank_PT, self.ox_tank_PT, self.fuel_venturi_flow_PT,
+                       self.ox_venturi_flow_PT, self.chamber_PT, self.ox_TC, self.chamber_TC]
 
         for sensor in sensor_list:
             sensor.pack(anchor='w', pady=2)
+
+    def update_sensor_data(self):
+        if self.sensorData:
+                sensorDataString = list(map(str, self.sensorData))
+                self.fuel_tank_PT.config(text=f"Fuel Tank PT: {sensorDataString[0]} psi")
+                self.ox_tank_PT.config(text=f"Ox Tank PT: {sensorDataString[1]} psi")
+                self.fuel_venturi_flow_PT.config(text=f"Fuel Venturi PT: {sensorDataString[2]} psi")
+                self.ox_venturi_flow_PT.config(text=f"Ox Venturi PT: {sensorDataString[3]} psi")
+                self.chamber_PT.config(text=f"Chamber PT: {sensorDataString[4]} psi")
+                self.ox_TC.config(text=f"Ox TC: {sensorDataString[5]} F")
+                self.chamber_TC.config(text=f"Chamber TC: {sensorDataString[6]} F")
+        self.root.after(250, self.update_sensor_data) #recursively call this function every 250ms
+
 
     def setup_ox_monitor(self, row_, column_):
         '''

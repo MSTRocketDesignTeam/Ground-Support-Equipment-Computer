@@ -1,3 +1,13 @@
+import gpiod
+import time
+import struct
+
+#Initializing servo line. Connect GPIO 2 on the Pi to GPIO 0 on the Pico, with a pulldown resistor on GPIO 0 of the Pico
+chip = gpiod.Chip('gpiochip4')
+servoPin = 2
+servoLine = chip.get_line(servoPin)
+servoLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
 
 class Controller():
     '''
@@ -44,6 +54,7 @@ class Controller():
 
             'tank_fill': 0,
         }
+        
 
         self.record = {}
 
@@ -55,7 +66,7 @@ class Controller():
 
         self.state['estop'] = 1
 
-        # Insert calls to micropython
+        # Insert hardware function calls 
 
         message = 'E-Stop Button Pressed'
         status = 2
@@ -66,6 +77,7 @@ class Controller():
         Attempts to open the fill valve and handles
         the corresponding error code from micropython.
         '''
+        servoLine.set_value(1)
         message = 'Fill valve opened'
         status = 2
 
@@ -76,6 +88,7 @@ class Controller():
         Attempts to close the oxidizer valves and handles the
         corresponding error code from micropython.
         '''
+        servoLine.set_value(0)
         message = 'E-Stop button pressed'
         status = 2
         return (message, status)
