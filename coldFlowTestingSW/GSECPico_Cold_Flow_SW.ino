@@ -1,14 +1,12 @@
 
 #include <Servo.h>
 
-//this code also works on an LED, making it cycle through brighter and dimmer
 Servo myservo;  // create servo object to control a servo
-// twelve servo objects can be created on most boards
 
-int pos = 0;    // variable to store the servo position
+int pos = 0;
 
 void setup() {
-  myservo.attach(6);  // attaches the servo on pin 9 to the servo object
+  myservo.attach(6);  // attaches the servo on pin 9 (GPIO6) to the servo object
   pinMode(0, INPUT);
   pinMode(1, INPUT);
 }
