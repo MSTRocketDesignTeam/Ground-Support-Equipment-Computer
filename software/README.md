@@ -3,7 +3,7 @@
 ## Purpose
 
 This directory includes the code required to run the GSEC GUI and trigger functions that will be physically executed on the rocket.
-This specific branch (main) is where functional hardware based software development, such as MicroPython method implementation, will take place.
+This specific branch (main) is where functional hardware based software development, such as hardware level method implementation, will take place. Note that this branch contains code that is best developed and tested from the Raspberry Pi itself, due to the hardware libraries that are used.
 
 ## Structure
 
