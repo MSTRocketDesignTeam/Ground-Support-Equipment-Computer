@@ -7,6 +7,7 @@ chip = gpiod.Chip('gpiochip4')
 servoPin = 2
 servoLine = chip.get_line(servoPin)
 servoLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+servoLine.set_value(1)
 
 
 class Controller():
@@ -77,7 +78,7 @@ class Controller():
         Attempts to open the fill valve and handles
         the corresponding error code from micropython.
         '''
-        servoLine.set_value(1)
+        servoLine.set_value(0) #Adjust accordingly, if GPIO logic is changed
         message = 'Fill valve opened'
         status = 2
 
@@ -88,7 +89,7 @@ class Controller():
         Attempts to close the oxidizer valves and handles the
         corresponding error code from micropython.
         '''
-        servoLine.set_value(0)
+        servoLine.set_value(1) #Adjust accordingly, if GPIO logic is changed
         message = 'E-Stop button pressed'
         status = 2
         return (message, status)
