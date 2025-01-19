@@ -3,3 +3,6 @@ GSECLOG*.txt
 
 # Ignore cached python files
 **/__pycache__/
+
+#Ignore virtual environment files
+venv/
