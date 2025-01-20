@@ -5,9 +5,9 @@ import threading
 from datetime import datetime, timezone
 import sys
 from theming import Custom_Button, Custom_Panel, Custom_Toggle, get_font
+import sv_ttk
 
 from controller import Controller
-
 
 class GUI_Window():
     '''
@@ -52,6 +52,7 @@ class GUI_Window():
         self.exit_attempt = False
 
         self.mode = None
+        sv_ttk.set_theme("dark")
 
         self.root.mainloop()
 
