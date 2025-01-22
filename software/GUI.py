@@ -30,8 +30,8 @@ class GUI_Window():
         self.setup_console(0)
         self.setup_caution_panel(0, 1)
         self.setup_sensor_readouts(0, 2)
-        self.setup_modes_panel(1, 1)
-        self.setup_kill_panel(1, 2)
+        self.setup_modes_panel(1, 2)
+        self.setup_kill_panel(1, 3)
         self.setup_ox_monitor(2, 0)
         self.setup_auto_control_section(2, 1)
         self.setup_manual_control_section(2, 2)
@@ -52,7 +52,7 @@ class GUI_Window():
         self.exit_attempt = False
 
         self.mode = None
-        sv_ttk.set_theme("dark")
+        #sv_ttk.set_theme("dark")
 
         self.root.mainloop()
 
@@ -83,8 +83,9 @@ class GUI_Window():
         console.
         '''
         cp = Custom_Panel(self.root, row_, column_, 'Status Lights')
+        cp.panel.grid(row=0, column=column_, rowspan=2)
 
-        canvas = tk.Canvas(cp.panel, width=200, height=200)
+        canvas = tk.Canvas(cp.panel, width=250, height=450)
 
         master_caution = canvas.create_oval(30, 15, 80, 65)
         canvas.create_text(55, 80, text='Master')
@@ -142,8 +143,8 @@ class GUI_Window():
 
         mp = Custom_Panel(self.root, row_, column_, 'Program Termination')
 
-        Custom_Button(mp.panel, 'Emergency Stop', self.run('estop'))
-        Custom_Button(mp.panel, 'Exit Program', self.prg_exit)
+        Custom_Button(mp.panel, 'Emergency Stop', self.run('estop'), 'red')
+        Custom_Button(mp.panel, 'Exit Program', self.prg_exit, 'white')
 
         self.set_control_mode = None
         self.set_interlocks = None
@@ -158,7 +159,7 @@ class GUI_Window():
         '''
         ap = Custom_Panel(self.root, row_, column_, 'Automated Controls')
 
-        Custom_Button(ap.panel, 'Start launch sequence', self.run('launch'))
+        Custom_Button(ap.panel, 'Start launch sequence', self.run('launch'), 'white')
 
     def setup_manual_control_section(self, row_, column_):
         '''
@@ -167,9 +168,9 @@ class GUI_Window():
         '''
         mp = Custom_Panel(self.root, row_, column_, 'Manual Controls')
 
-        Custom_Button(mp.panel, 'Igniter', self.run('ignite'))
-        Custom_Button(mp.panel, 'Dump Oxidizer', self.run('dump'))
-        Custom_Button(mp.panel, 'Open Mains', self.run('open_mains'))        
+        Custom_Button(mp.panel, 'Igniter', self.run('ignite'), 'white')
+        Custom_Button(mp.panel, 'Dump Oxidizer', self.run('dump'), 'white')
+        Custom_Button(mp.panel, 'Open Mains', self.run('open_mains'), 'white')
 
 
     def setup_sensor_readouts(self, row_, column_):
@@ -197,10 +198,14 @@ class GUI_Window():
 
         for sensor in sensor_list:
             sensor.pack(anchor='w', pady=2)
+        sp.panel.pack_propagate(False)
 
     def update_sensor_data(self):
         if self.sensorData:
                 sensorDataString = list(map(str, self.sensorData))
+                for i in range(len(sensorDataString)):
+                        if (int(sensorDataString[i]) < 10):
+                                sensorDataString[i] = "0" + sensorDataString[i]
                 self.fuel_tank_PT.config(text=f"Fuel Tank PT: {sensorDataString[0]} psi")
                 self.ox_tank_PT.config(text=f"Ox Tank PT: {sensorDataString[1]} psi")
                 self.fuel_venturi_flow_PT.config(text=f"Fuel Venturi PT: {sensorDataString[2]} psi")
@@ -222,8 +227,8 @@ class GUI_Window():
         s = ttk.Style()
         s.configure('TProgressbar', thickness=20)
 
-        Custom_Button(op.panel, 'Open Fill Valve', self.run('open_fill'))
-        Custom_Button(op.panel, 'Close Fill Valve', self.run('close_fill'))
+        Custom_Button(op.panel, 'Open Fill Valve', self.run('open_fill'), 'white')
+        Custom_Button(op.panel, 'Close Fill Valve', self.run('close_fill'), 'white')
         fill_time = tk.Label(
             op.panel, text='Time to fill:\t\t-- Not Started --')
         progress_label = tk.Label(op.panel, text='Fill progress:')

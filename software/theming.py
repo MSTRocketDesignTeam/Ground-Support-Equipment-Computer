@@ -3,9 +3,9 @@ import tkinter.font as font
 
 
 class Custom_Button():
-    def __init__(self, parent, text_, action, **kwargs):
-        self.normal_color = 'green'
-        self.text_color = 'white'
+    def __init__(self, parent, text_, action, bgColor_,**kwargs):
+        self.normal_color = bgColor_
+        self.text_color = 'black'
         self.hover_color = '#b0b0b0'
         self.active_color = '#94ff21'
         self.toggle_color = '#f4ea80'
@@ -63,7 +63,7 @@ class Custom_Button():
 class Custom_Panel():
     def __init__(self, root, row_, column_, text_):
         self.panel = tk.LabelFrame(root, text=text_, bg='black',
-                                   fg='white', padx=15, pady=15, relief='groove')
+                                   fg='white', padx=15, pady=15, relief='groove', width=300, height=300)
         self.panel.grid(row=row_, column=column_,
                         sticky='nsew', padx=5, pady=5)
 
@@ -75,9 +75,9 @@ class Custom_Toggle():
         frame.pack()
 
         self.on = Custom_Button(
-            frame, 'On', self.toggle_on, toggle=True)
+            frame, 'On', self.toggle_on, 'white', toggle=True)
         self.off = Custom_Button(
-            frame, 'Off', self.toggle_off, toggle=True)
+            frame, 'Off', self.toggle_off, 'white', toggle=True)
 
         # Default toggle:
         default_state = kwargs.get('default', 'off')

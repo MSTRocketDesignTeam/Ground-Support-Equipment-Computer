@@ -113,7 +113,7 @@ class Controller():
         corresponding error code from micropython.
         '''
         servoLine.set_value(1) #Adjust accordingly, if GPIO logic is changed
-        message = 'E-Stop button pressed'
+        message = 'Fill valve closed'
         status = 2
         return (message, status)
 
