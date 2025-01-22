@@ -4,10 +4,33 @@ import struct
 
 #Initializing servo line. Connect GPIO 2 on the Pi to GPIO 0 on the Pico, with a pulldown resistor on GPIO 0 of the Pico
 chip = gpiod.Chip('gpiochip4')
+
 servoPin = 2
 servoLine = chip.get_line(servoPin)
 servoLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
 servoLine.set_value(1)
+
+autoLaunchPin = 21
+autoLaunchLine = chip.get_line(autoLaunchPin)
+autoLaunchLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
+
+manualIgniterPin = 20
+manualIgniterLine = chip.get_line(manualIgniterPin)
+manualIgniterLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
+manualDumpPin = 16
+manualDumpLine = chip.get_line(manualDumpPin)
+manualDumpLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
+
+manualOpenMainsPin = 13
+manualOpenMainsLine = chip.get_line(manualOpenMainsPin)
+manualOpenMainsLine.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
+
+
+
+
 
 
 class Controller():
@@ -95,6 +118,7 @@ class Controller():
         return (message, status)
 
     def launch(self):
+        autoLaunchLine.set_value(1)
         message = 'Launch button pressed'
         status = 2
 
@@ -108,18 +132,21 @@ class Controller():
         pass
 
     def ignite(self):
+        manualIgniterLine.set_value(1)
         message = 'Ignite button pressed'
         status = 2
 
         return (message, status)
 
     def dump(self):
+        manualDumpLine.set_value(1)
         message = 'Dump button pressed'
         status = 2
 
         return (message, status)
 
     def open_mains(self):
+        manualOpenMainsLine.set_value(1)
         message = 'Mains open button pressed'
         status = 2
 
@@ -140,3 +167,5 @@ class Controller():
         status = 2
 
         return (message, status)
+
+

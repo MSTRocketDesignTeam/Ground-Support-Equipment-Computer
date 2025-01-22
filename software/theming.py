@@ -4,8 +4,8 @@ import tkinter.font as font
 
 class Custom_Button():
     def __init__(self, parent, text_, action, **kwargs):
-        self.normal_color = 'white'
-        self.text_color = 'black'
+        self.normal_color = 'green'
+        self.text_color = 'white'
         self.hover_color = '#b0b0b0'
         self.active_color = '#94ff21'
         self.toggle_color = '#f4ea80'
