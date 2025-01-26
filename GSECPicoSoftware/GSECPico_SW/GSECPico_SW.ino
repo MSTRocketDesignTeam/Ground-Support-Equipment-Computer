@@ -1,7 +1,7 @@
 #include <Servo.h>
 Servo N2OServo; //Initialize servo object
 const int N2O_FILL_PWM_PIN = 6; //Attach servo to GPIO 6 (pin 9)
-const int N2O_FILL_CMD_PIN = 7; //Specify the servo logic command pin as GPIO 7 (pin 10)
+const int N2O_FILL_CMD_PIN = 2; //Specify the servo logic command pin as GPIO 2 (pin 4)
 const int RANDOM_SEED_PIN = 28; //Setup pin (GPIO28/pin34) for random seed acquisition via analogRead
 const int CTRL_ANGLE = 90; //Define the angle that means "open"
 
